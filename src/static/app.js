@@ -20,12 +20,65 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
-        activityCard.innerHTML = `
+        // Basic info
+        const header = document.createElement("div");
+        header.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
         `;
+        activityCard.appendChild(header);
+
+        // Participants section
+        const participantsSection = document.createElement("div");
+        participantsSection.className = "participants-section";
+
+        const participantsTitle = document.createElement("h5");
+        participantsTitle.textContent = "Participants";
+        participantsSection.appendChild(participantsTitle);
+
+        const participantsListEl = document.createElement("ul");
+        participantsListEl.className = "participants-list";
+
+        if (details.participants && details.participants.length > 0) {
+          details.participants.forEach((p) => {
+            const li = document.createElement("li");
+            li.className = "participant-item";
+
+            const avatar = document.createElement("span");
+            avatar.className = "avatar";
+            // derive initials from participant (email or name)
+            const label = String(p || "");
+            const namePart = label.split("@")[0] || label;
+            const initials = namePart
+              .split(/[\s.\-_]+/)
+              .map((s) => (s ? s[0] : ""))
+              .filter(Boolean)
+              .slice(0, 2)
+              .join("")
+              .toUpperCase();
+            avatar.textContent = initials || "?";
+
+            const text = document.createElement("span");
+            text.className = "participant-name";
+            text.textContent = p;
+
+            li.appendChild(avatar);
+            li.appendChild(text);
+            participantsListEl.appendChild(li);
+          });
+        } else {
+          const empty = document.createElement("em");
+          empty.textContent = "Aucun participant pour l'instant.";
+          // wrap fallback in list item to keep bullets consistent
+          const li = document.createElement("li");
+          li.appendChild(empty);
+          participantsListEl.appendChild(li);
+        }
+
+        participantsSection.appendChild(participantsListEl);
+        activityCard.appendChild(participantsSection);
 
         activitiesList.appendChild(activityCard);
 
